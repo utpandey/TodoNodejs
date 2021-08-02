@@ -24,12 +24,12 @@ mongoose.connection.on('error', (err) => {
 })
 
 // Set up a .env with environment variables to use below
-var port = serverConfig.port || process.env.PORT || 3000;
+// var port = serverConfig.port || process.env.PORT || 3000;
 var server_port = process.env.YOUR_PORT || process.env.PORT || 80;
 var server_host = process.env.YOUR_HOST || '0.0.0.0';
 // port (as described above) and host are both wrong
-const host = 'localhost';
-const port = 3000;
+// const host = 'localhost';
+// const port = 3000;
 
 // use alternate localhost and the port Heroku assigns to $PORT
 const host = '0.0.0.0';
