@@ -27,6 +27,13 @@ mongoose.connection.on('error', (err) => {
 var port = serverConfig.port || process.env.PORT || 3000;
 var server_port = process.env.YOUR_PORT || process.env.PORT || 80;
 var server_host = process.env.YOUR_HOST || '0.0.0.0';
-app.listen(server_port, server_host, () => {
-    console.log("Server running: " + server_port)
-})
+// port (as described above) and host are both wrong
+const host = 'localhost';
+const port = 3000;
+
+// use alternate localhost and the port Heroku assigns to $PORT
+const host = '0.0.0.0';
+const port = process.env.PORT || 3000;
+app.listen(port, host, function() {
+    console.log("Server started.......");
+});
