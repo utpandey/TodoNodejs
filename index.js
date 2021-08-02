@@ -25,6 +25,6 @@ mongoose.connection.on('error', (err) => {
 
 // Set up a .env with environment variables to use below
 var port = serverConfig.port || process.env.PORT || 3000
-app.listen(port, () => {
+app.listen(5000 || process.env.PORT, () => {
     console.log("Server running: " + port)
 })
