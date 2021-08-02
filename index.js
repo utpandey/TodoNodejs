@@ -2,6 +2,7 @@ const express = require('express');
 const app = express()
 const cors = require('cors')
 const serverConfig = require('./config');
+require('./models/todoData');
 const todoRoutes = require('./routes/todoRoutes');
 const mongoose = require('mongoose');
 const server = require('./models');

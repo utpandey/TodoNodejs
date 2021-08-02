@@ -1,66 +1,76 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
+const Todo = mongoose.model("TODO");
 const { v1: uuidv1, v4: uuidv4 } = require("uuid");
-var todoList = [{
-    todoTitle: "Complete remaining blog",
-    todoDate: "2021-06-01T08:30",
-    todoPriority: 2,
-    todoCompleted: "false",
-    id: "575407e7-d2f9-4e44-8e85-c2425c24ffe6",
-}, ];
 
 //post route for adding new task
-router.post("/addtask", function(req, res) {
-    var newTask = req.body;
-    //add the new task from the post route
-    newTask.id = uuidv4();
-    todoList.push(newTask);
-    res.status(200).send(newTask);
-});
-
-router.post("/updatetask", function(req, res) {
-    var updatedTask = req.body;
+router.post("/addtask", async(req, res) => {
+    const { todoTitle, todoDate, todoPriority, todoCompleted } = req.body;
     try {
-        todoList.map((data) => {
-            if (updatedTask.id === data.id) {
-                // console.log(data)
-                if (updatedTask.todoTitle) {
-                    data.todoTitle = updatedTask.todoTitle;
-                }
-                if (updatedTask.todoDate) {
-                    data.todoDate = updatedTask.todoDate;
-                }
-                if (updatedTask.todoPriority) {
-                    data.todoPriority = updatedTask.todoPriority;
-                }
-                if (updatedTask.todoCompleted) {
-                    data.todoCompleted = updatedTask.todoCompleted;
-                }
-                console.log(data);
-                res.status(200).send(data);
-            }
+        const todoObject = new Todo({
+            todoTitle,
+            todoDate,
+            todoPriority,
+            todoCompleted,
         });
-    } catch {
-        return res.status(422).send({ error: "Please provide correct data" });
+        await todoObject.save(function(err) {
+            if (err) {
+                res.status(401).send(err.message);
+            }
+            var todoId = todoObject._id;
+            res.status(200).send(todoId);
+        });
+    } catch (err) {
+        res.status(422).send(err.message);
     }
 });
 
-router.post("/removetask", function(req, res) {
-    var todoId = req.body;
+router.post("/updatetask", async(req, res) => {
+    const { todoId, todoTitle, todoDate, todoPriority, todoCompleted } = req.body;
+    console.log(todoDate)
     try {
-        index = todoList.findIndex(x => x.id === todoId.id)
-        if (index > -1) {
-            todoList.splice(index, 1);
-        }
-        console.log(todoList)
-        res.status(200).send(todoList);
-    } catch {
-        res.status(422).send({ error: "Please provide correct data" });
+        Todo.updateOne({ _id: todoId }, {
+                $set: {
+                    todoTitle,
+                    todoDate,
+                    todoPriority,
+                    todoCompleted,
+                },
+            }, { omitUndefined: 1, new: true },
+            function(error, success) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    res.status(200);
+                    res.send(success);
+                }
+            }
+        );
+    } catch (err) {
+        res.status(422).send(err.message);
+    }
+});
+
+router.post("/removetask", async(req, res) => {
+    const { todoId } = req.body;
+    try {
+        const todo = await Todo.findByIdAndDelete(todoId);
+        if (!todo) return res.status(404);
+        return res.status(200).send(todo);
+    } catch (err) {
+        res.status(422).send(err.message);
     }
 });
 
 router.get("/", function(req, res) {
-    res.status(200).send(todoList);
+    Todo.find({}, function(err, todo) {
+        var todoMap = [];
+        todo.forEach(function(todos) {
+            todoMap.push(todos);
+        });
+        res.status(200).send(todoMap);
+    });
 });
 
 module.exports = router;
